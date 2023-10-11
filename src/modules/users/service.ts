@@ -13,7 +13,7 @@ export async function handleCreateUser(req: Request, res: Response) {
   try {
     const payload = createUserSchema.parse(req.body);
 
-    payload.password = await hashString(payload.password);
+    payload.password = hashString(payload.password);
 
     const result = await req.prisma.users.create({
       data: payload,

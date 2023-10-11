@@ -18,7 +18,7 @@ export async function handleLogin(req: Request, res: Response) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (bcrypt.compareSync(payload.password, user.password)) {
+    if (!bcrypt.compareSync(payload.password, user.password)) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
