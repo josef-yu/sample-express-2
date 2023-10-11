@@ -1,116 +1,69 @@
 import { Request, Response } from "express";
-import {
-  UserListSchema,
-  UserSchema,
-  createUserSchema,
-  updateUserSchema,
-} from "./model";
-import { handleInvalidPayload } from "../../utils/parsing";
 import { hashString } from "../../utils/hashing";
+import { BasicUserSelect, createUserSchema, updateUserSchema } from "./model";
 
 // Create a user
 export async function handleCreateUser(req: Request, res: Response) {
-  try {
-    const payload = createUserSchema.parse(req.body);
+  const payload = createUserSchema.parse(req.body);
 
-    payload.password = hashString(payload.password);
+  payload.password = hashString(payload.password);
 
-    const result = await req.prisma.users.create({
-      data: payload,
-    });
+  const result = await req.prisma.users.create({
+    data: payload,
+    select: BasicUserSelect,
+  });
 
-    if (!result) {
-      return res.status(500).json({ message: "Unable to create user" });
-    }
-
-    return res.status(201).json(result);
-  } catch (e) {
-    console.log(e);
-    if (handleInvalidPayload(e, res)) {
-      return;
-    }
-
-    return res
-      .status(500)
-      .json({ message: "Something happened with the server." });
-  }
+  return res.status(201).json(result);
 }
 
 // Get list of users
 export async function handleGetUserList(req: Request, res: Response) {
   const prisma = req.prisma;
-  const users = await prisma.users.findMany();
-  const result = UserListSchema.parse(users);
-  return res.status(200).json(result);
+  const users = await prisma.users.findMany({
+    select: BasicUserSelect,
+  });
+  return res.status(200).json(users);
 }
 
 // Get user by id
 export async function handleGetUserById(req: Request, res: Response) {
   const userId = req.params.id;
-  const user = await req.prisma.users.findFirst({
+  const user = await req.prisma.users.findFirstOrThrow({
     where: {
       id: parseInt(userId),
     },
+    select: BasicUserSelect,
   });
-
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  const result = UserSchema.parse(user);
 
   return res.status(200).json(user);
 }
 
 // Update user by id
 export async function handleUpdateUser(req: Request, res: Response) {
-  try {
-    const userId = req.params.id;
-    const payload = updateUserSchema.parse(req.body);
+  const userId = req.params.id;
+  const payload = updateUserSchema.parse(req.body);
 
-    const result = await req.prisma.users.update({
-      data: payload,
-      where: {
-        id: parseInt(userId),
-      },
-    });
+  const result = await req.prisma.users.update({
+    data: payload,
+    where: {
+      id: parseInt(userId),
+    },
+    select: BasicUserSelect,
+  });
 
-    if (!result) {
-      return res.status(500).json({ message: "Failed to update user" });
-    }
-
-    return res.status(200).json(result);
-  } catch (e) {
-    console.log(e);
-    if (handleInvalidPayload(e, res)) {
-      return;
-    }
-
-    return res
-      .status(500)
-      .json({ message: "Something happened with the server." });
-  }
+  return res.status(200).json(result);
 }
 
 // Delete user by id
 export async function handleDeleteUser(req: Request, res: Response) {
-  try {
-    const userId = req.params.id;
+  const userId = req.params.id;
 
-    const result = await req.prisma.users.delete({
-      where: {
-        id: parseInt(userId),
-      },
-    });
+  const result = await req.prisma.users.delete({
+    where: {
+      id: parseInt(userId),
+    },
+    select: BasicUserSelect,
+  });
 
-    if (!result) {
-      return res.status(500).json({ message: "Failed to delete user" });
-    }
-
-    return res.status(200).json(result);
-  } catch (e) {
-    return res
-      .status(500)
-      .json({ message: "Something happened with the server." });
-  }
+  return res.status(200).json(result);
 }

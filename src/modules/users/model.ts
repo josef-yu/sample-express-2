@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
 export type User = {
   id: number;
@@ -27,11 +28,9 @@ export const loginSchema = z.object({
   password: z.string({ required_error: "Password is required." }),
 });
 
-export const UserSchema = z.object({
-  id: z.number(),
-  username: z.string(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-});
-
-export const UserListSchema = z.array(UserSchema);
+export const BasicUserSelect: Prisma.UsersSelect = {
+  id: true,
+  firstName: true,
+  lastName: true,
+  username: true,
+};

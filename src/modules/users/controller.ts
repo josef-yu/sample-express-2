@@ -10,8 +10,6 @@ import { authMiddleware } from "../../middleware/auth";
 
 const usersRouter = Router();
 
-// usersRouter.use(authMiddleware);
-
 // Create user
 usersRouter.post("/", handleCreateUser);
 

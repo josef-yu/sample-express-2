@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { ServerError } from "./error";
 
 export const authMiddleware = (
   req: Request,
@@ -9,13 +10,14 @@ export const authMiddleware = (
   const token = req.headers.authorization;
 
   if (!token) {
-    return res.status(403).json({
-      message: "You are not logged in!",
-    });
+    throw new ServerError(401, "You are unathorized to do this request");
   }
 
-  const decodedToken = jwt.verify(token, `${process.env.JWT_SALT}`);
-  console.log(decodedToken);
+  try {
+    jwt.verify(token, `${process.env.JWT_SALT}`);
+  } catch (e) {
+    throw new ServerError(401, "You are unathorized to do this request");
+  }
 
   next();
 };
