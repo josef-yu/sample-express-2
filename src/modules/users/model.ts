@@ -12,6 +12,7 @@ export const createUserSchema = z.object({
   password: z.string({ required_error: "Password is required." }),
   firstName: z.string({ required_error: "First name is required." }),
   lastName: z.string({ required_error: "Last name is required." }),
+  image: z.string().optional(),
 });
 
 export type CreateUserSchema = z.infer<typeof createUserSchema>;
@@ -19,6 +20,7 @@ export type CreateUserSchema = z.infer<typeof createUserSchema>;
 export const updateUserSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
+  image: z.string().optional(),
 });
 
 export type UpdateUserSchema = z.infer<typeof updateUserSchema>;
@@ -33,4 +35,5 @@ export const BasicUserSelect: Prisma.UsersSelect = {
   firstName: true,
   lastName: true,
   username: true,
+  image: true,
 };

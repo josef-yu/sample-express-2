@@ -1,13 +1,13 @@
 import dotenv from "dotenv";
-import "express-async-errors";
 import express, { Express, NextFunction, Request, Response } from "express";
+import "express-async-errors";
 
 dotenv.config();
 
 import { PrismaClient } from "@prisma/client";
+import { errorHandlerMiddleware } from "./src/middleware/error";
 import { handleLogin } from "./src/modules";
 import usersRouter from "./src/modules/users/controller";
-import { errorHandlerMiddleware } from "./src/middleware/error";
 
 const app: Express = express();
 const port = process.env.PORT;
@@ -34,6 +34,12 @@ app.use(initPrisma);
 app.get("/", (req: Request, res: Response) => {
   console.log("triggered root route");
   res.send("Express + TypeScript Server");
+});
+
+app.get("/images/users/:id/image.jpeg", (req: Request, res: Response) => {
+  const userId = req.params.id;
+
+  res.sendFile(`./data/user/${userId}/image.jpeg`, { root: "./" });
 });
 
 app.post("/login", handleLogin);

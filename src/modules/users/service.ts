@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { saveUserImage } from "../../utils/file";
 import { hashString } from "../../utils/hashing";
 import { BasicUserSelect, createUserSchema, updateUserSchema } from "./model";
 
@@ -8,10 +9,23 @@ export async function handleCreateUser(req: Request, res: Response) {
 
   payload.password = hashString(payload.password);
 
-  const result = await req.prisma.users.create({
+  let result = await req.prisma.users.create({
     data: payload,
     select: BasicUserSelect,
   });
+
+  if (payload.image) {
+    payload.image = saveUserImage(result.id.toString(), payload.image);
+
+    result = await req.prisma.users.update({
+      data: {
+        image: payload.image,
+      },
+      where: {
+        id: result.id,
+      },
+    });
+  }
 
   return res.status(201).json(result);
 }
@@ -42,6 +56,10 @@ export async function handleGetUserById(req: Request, res: Response) {
 export async function handleUpdateUser(req: Request, res: Response) {
   const userId = req.params.id;
   const payload = updateUserSchema.parse(req.body);
+
+  if (payload.image) {
+    payload.image = saveUserImage(userId, payload.image);
+  }
 
   const result = await req.prisma.users.update({
     data: payload,
