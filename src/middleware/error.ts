@@ -2,15 +2,17 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 
+interface ServerErrorArgs {
+  statusCode: number;
+  message: string;
+  extra?: Record<string, string>;
+}
 export class ServerError extends Error {
   public readonly statusCode: number;
   public readonly extra: Record<string, string>;
 
-  constructor(
-    statusCode: number = 500,
-    message: string,
-    extra: Record<string, string> = {}
-  ) {
+  constructor(args: ServerErrorArgs) {
+    const { statusCode, message, extra = {} } = args;
     super(message);
 
     this.statusCode = statusCode;
@@ -24,7 +26,7 @@ export function errorHandlerMiddleware<
   console.log(error);
 
   let statusCode = 500;
-  let body = { message: "Something went wrong..." };
+  let body: Record<string, unknown> = { message: "Something went wrong..." };
 
   if (error instanceof ServerError) {
     statusCode = error.statusCode;
@@ -44,7 +46,9 @@ export function errorHandlerMiddleware<
 
     body = {
       message: "Payload invalid",
-      ...errorFields,
+      issues: {
+        ...errorFields,
+      },
     };
   }
 

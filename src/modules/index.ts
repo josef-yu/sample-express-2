@@ -13,12 +13,11 @@ export async function handleLogin(req: Request, res: Response) {
     },
   });
 
-  if (!user) {
-    throw new ServerError(400, "Username/password is invalid");
-  }
-
-  if (!isValidPassword(payload.password, user.password)) {
-    throw new ServerError(400, "Username/password is invalid");
+  if (!user || !isValidPassword(payload.password, user.password)) {
+    throw new ServerError({
+      statusCode: 400,
+      message: "Username/password is invalid.",
+    });
   }
 
   const token = jwt.sign(
