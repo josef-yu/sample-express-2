@@ -7,7 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
     "start": "node dist/index.js",
-    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\""
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\"",
+    "db-migrate": "npx prisma migrate dev --schema src/db/prisma/schema.prisma",
+    "db-generate": "npx prisma generate --schema src/db/prisma/schema.prisma",
+    "db-init": "npx prisma migrate dev --name initial --schema src/db/prisma/schema.prisma && npx prisma generate --schema src/db/prisma/schema.prisma"
   },
   "author": "",
   "license": "ISC",
